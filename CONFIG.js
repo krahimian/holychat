@@ -1,5 +1,5 @@
 /* global CONFIG */
 
 var CONFIG = {
-    name: 'chat'
+    name: 'HOLY CHAT'
 };

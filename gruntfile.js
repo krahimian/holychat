@@ -281,10 +281,11 @@ module.exports = function (grunt) {
 	'staticinline',
 	'inline',
 
-	'htmlmin'
+	'htmlmin',
+
+	'cordovacli'
 
     ]);
 
     grunt.registerTask('default', ['build']);
-    grunt.registerTask('mobile', ['build', 'cordovacli']);
 };
