@@ -1,0 +1,123 @@
+@import '00_variables.styl'
+@import 'nib'
+
+.item
+    background transparent
+    position relative
+    z-index 2
+    display block
+    padding 15px
+    width 100%
+    h1
+    h2
+    h3
+    h4
+    h5
+    h6
+    p
+        overflow hidden
+        text-overflow ellipsis
+        white-space nowrap
+    h2
+        margin 0 0 4px 0
+    h3
+        margin 0 0 4px 0
+    h4
+        margin 0 0 4px 0
+    h5
+    h6
+        margin 0 0 3px 0
+    h1:last-child
+    h2:last-child
+    h3:last-child
+    h4:last-child
+    h5:last-child
+    h6:last-child
+    p:last-child
+        margin-bottom 0
+
+    &.selected
+        font-weight 500
+        background rgba(211,228,120,0.2)
+
+    &:before
+    &:after
+        content " "
+        display table
+    &:after
+        clear both
+
+.item-body
+    overflow visible
+    text-overflow inherit
+    white-space normal
+    h1
+    h2
+    h3
+    h4
+    h5
+    h6
+    p
+        overflow visible
+        white-space normal
+        min-height 19px
+
+.item-image
+    padding 0
+
+.item-avatar
+    padding-left 70px
+
+.item-avatar > img:first-child
+    position absolute
+    top 15px
+    left 15px
+    width 45px
+    height 45px
+    border-radius 2px
+    background-color #fafafa
+
+.item-header
+    padding 12px 15px
+
+.list
+    position relative
+    .item
+        border-bottom 1px solid $border
+
+.card
+    position relative
+    margin 0 0 20px 0
+    width 100%
+    border-radius 2px
+    border 1px solid $border
+    transition all 0.5s ease
+    background white
+
+.card-content
+    word-break break-word
+    word-wrap break-word
+    padding-left 120px
+    min-height 80px
+
+.card-image
+    position absolute
+    left 0
+
+.item-left .left
+    display flex
+    align-items center
+    flex-direction column
+    position absolute
+    top 0
+    left -50px
+    height 100%
+
+.item-right
+    padding-right 50px
+    .right
+        width 45px
+        position absolute
+        top 0
+        right 0
+        bottom 0

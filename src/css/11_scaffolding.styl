@@ -1,0 +1,48 @@
+@import '00_variables.styl'
+@import 'nib'
+
+html
+    text-size-adjust 100%
+
+body
+    position fixed
+    top 0
+    bottom 0
+    font-family 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif
+    font-size 14px
+    font-weight 300
+    color $text
+
+main
+    position relative
+    z-index 1
+    background $bg
+    max-width 800px
+    margin 0 auto 59px
+    padding 15px
+
+#outgoing
+    position fixed
+    bottom 0
+    left 0
+    right 0
+    z-index 2
+    background #fcfcfc
+    border-top 1px solid $border
+    .container
+        background white
+        position relative
+        width 100%
+        margin 0 auto
+        max-width 800px    
+    textarea[type="text"]
+        padding 10px 120px 10px 20px
+        width 100%
+    #submit
+        position absolute
+        right 0
+        top 0
+        width 100px
+        height 100%
+        text-align center
+        line-height 28px
