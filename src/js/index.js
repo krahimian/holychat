@@ -89,18 +89,29 @@ app.controller('AuthCtrl', ['$scope', 'Auth', '$log', '$timeout', function($scop
     $scope.shake = false;
     $scope.message = null;
 
+    var setInvalid = function(message) {
+	$scope.message = message;
+	$scope.shake = true;
+	$timeout(function() {
+	    $scope.shake = false;
+	}, 2000);
+    };
+
     $scope.submit = function() {
 	$log.debug('submit');
+	$scope.auth.server.$setValidity('healthy', true);
+
+	if ($scope.auth.$invalid) {
+	    setInvalid('name required');
+	    return;
+	}
+
 	Auth.save({
 	    name: $scope.name,
 	    server: $scope.server
 	}, function(err) {
-	    $scope.message = err;
 	    $scope.auth.server.$setValidity('healthy', false);
-	    $scope.shake = true;
-	    $timeout(function() {
-		$scope.shake = false;
-	    }, 2000);
+	    setInvalid(err);
 	});
     };
 }]);
