@@ -1,0 +1,52 @@
+@import '00_variables.styl'
+@import 'nib'
+
+#landing
+    display table
+    position absolute
+    padding 0
+    width 100%
+    height 100%
+    z-index 100
+    background black
+    text-align center
+    background $border
+
+    .form-container
+        display table-cell
+        vertical-align middle
+
+    form
+        position relative
+        max-width 350px
+        width 90%
+        margin 0 auto
+        z-index 1
+
+    .auth-message
+        height 22px
+        padding 0 5px
+        margin-bottom 20px
+        font-weight 500
+        color rgba(204,17,0,.5)
+
+    input
+    .submit
+        width 100%
+        border none
+        margin-bottom 1px
+        padding 10px 20px
+        background rgba(255,255,255,.8)
+        ::-webkit-input-placeholder
+            color rgba(255,255,255,.5)
+        &:first-child
+            border-radius 2px 2px 0 0
+        &:last-child
+            border-radius 0 0 2px 2px
+            margin-bottom none
+        &.disabled
+            color #444
+            cursor not-allowed
+        &.ng-dirty.ng-invalid
+            background rgba(204,17,0,.5)
+            color white

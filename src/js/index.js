@@ -28,30 +28,38 @@ app.factory('Auth', ['$rootScope', '$window', '$http', '$log', function($rootSco
 	server: null,
 
 	init: function() {
-	    if ($window.localStorage.data) this.load(JSON.parse($window.localStorage.data));
-	    else $rootScope.$broadcast('auth:initialized');
+	    var self = this;
+
+	    if ($window.localStorage.data) {
+		var data = JSON.parse($window.localStorage.data);
+
+		self.check(data.server, function(err) {
+
+		    $rootScope.$broadcast('auth:initialized');
+
+		    if (err) {
+			$log.error(err);
+			delete $window.localStorage.data;
+			return;
+		    }
+
+		    self.load(data);
+		});
+	    } else $rootScope.$broadcast('auth:initialized');
 	},
 
 	load: function(data) {
-	    this.check(data.server, function(err) {
 
-		$rootScope.$broadcast('auth:initialized');		
+	    this.name = data.name;
+	    this.server = data.server;
 
-		if (err) {
-		    $log.error(err);
-		    delete $window.localStorage.data;
-		    return;
-		}
-
-		this.name = data.name;
-		this.server = data.server;
-
-		$rootScope.$broadcast('auth:loaded', data.name, data.server);
-	    });
+	    $rootScope.$broadcast('auth:loaded', data.name, data.server);
 	},
 
 	save: function(data, cb) {
 	    var self = this;
+
+	    data.server = data.server + ':8080';
 
 	    this.check(data.server, function(err) {
 		if (err) {
@@ -75,15 +83,24 @@ app.factory('Auth', ['$rootScope', '$window', '$http', '$log', function($rootSco
     };
 }]);
 
-app.controller('AuthCtrl', ['$scope', 'Auth', '$log', function($scope, Auth, $log) {
+app.controller('AuthCtrl', ['$scope', 'Auth', '$log', '$timeout', function($scope, Auth, $log, $timeout) {
     $scope.name = null;
     $scope.server = null;
-    
+    $scope.shake = false;
+    $scope.message = null;
+
     $scope.submit = function() {
 	$log.debug('submit');
 	Auth.save({
 	    name: $scope.name,
 	    server: $scope.server
+	}, function(err) {
+	    $scope.message = err;
+	    $scope.auth.server.$setValidity('healthy', false);
+	    $scope.shake = true;
+	    $timeout(function() {
+		$scope.shake = false;
+	    }, 2000);
 	});
     };
 }]);
@@ -129,7 +146,7 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', function($scope,
     });
 
 
-    document.outgoing.message.focus();
+    document.message.text.focus();
     reset();
 
     $scope.submit = function() {
@@ -147,7 +164,7 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', function($scope,
 	ws.emit('message', message);
 
 	$scope.text = null;
-	document.outgoing.message.blur();
+	document.message.text.blur();
 	reset();
     };
 

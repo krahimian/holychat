@@ -2,11 +2,13 @@ include head
     
     body.ng-cloak(ng-switch="loaded", ng-show="initialized")
 
-        section(ng-controller="AuthCtrl", ng-switch-when="false")
-            form(name="auth", ng-submit="submit()")
-                input(name="name", ng-model="name", placeholder="name")
-                input(name="server", ng-model="server", placeholder="server address")
-                button.btn.submit(type="submit") submit
+        #landing(ng-controller="AuthCtrl", ng-switch-when="false")
+            .form-container
+                form(name="auth", ng-submit="submit()", ng-class="{shake: shake}")
+                    .auth-message(ng-bind="message", ng-if="message")
+                    input(name="name", ng-model="name", placeholder="name", required)
+                    input(name="server", ng-model="server", placeholder="server address", required)
+                    button.btn.submit(type="submit") submit
 
         main(ng-controller="MainCtrl", ng-switch-when="true")
             .item.item-body(ng-repeat="message in messages")
@@ -15,9 +17,9 @@ include head
                     .meta(ng-bind="::message.timestamp | fromNow")
                 p(ng-bind="::message.text")
             .item.meta(ng-show="loaded && !messages.length") The message queue is empty
-            form#outgoing(name="outgoing", ng-submit="submit()")
+            form#message(name="message", ng-submit="submit()")
                 .container
-                    textarea(name="message", type="text", ng-model="text", placeholder="write a new message here")
+                    textarea(name="text", type="text", ng-model="text", placeholder="write a new message here")
                     #submit.btn.btn-sm.btn-light(ng-click="submit()") Send
 
     include scripts
