@@ -20,6 +20,6 @@ include head
             form#message(name="message", ng-submit="submit()")
                 .container
                     textarea(name="text", type="text", ng-model="text", placeholder="write a new message here")
-                    #submit.btn.btn-sm.btn-light(ng-click="submit()") Send
+                    #submit.btn.btn-sm.btn-light(ng-click="submit()", ng-show="text") Send
 
     include scripts
