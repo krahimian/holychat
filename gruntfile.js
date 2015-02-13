@@ -65,7 +65,7 @@ module.exports = function (grunt) {
 	    },
 	    js: {
 		files: {
-		    'tmp/app.js' : ['CONFIG.js', 'src/ngApp.js', 'src/js/**/*.js', 'src/main.js']
+		    'tmp/app.js' : ['src/ngApp.js', 'src/js/**/*.js', 'src/main.js']
 		}
 	    }
 	},

@@ -1,6 +1,6 @@
-/* global angular, CONFIG, io */
+/* global angular, io */
 
-var app = angular.module(CONFIG.name, [
+var app = angular.module('HOLY CHAT', [
     'btford.socket-io'
 ]);
 

@@ -1,5 +1,10 @@
 /* global CONFIG */
 
 var CONFIG = {
-    name: 'HOLY CHAT'
+    redis: {
+	host: 'localhost',
+	port: 6379
+    }
 };
+
+module.exports = CONFIG;
