@@ -11,7 +11,7 @@ include head
                     button.btn.submit(type="submit") submit
 
         main(ng-controller="MainCtrl", ng-switch-when="true")
-            .item.item-body(ng-repeat="message in messages")
+            .item.item-body(ng-repeat="message in messages track by $index")
                 div
                     .meta(ng-bind="::message.name")
                     .meta(ng-bind="::message.timestamp | fromNow")
