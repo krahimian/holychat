@@ -28,6 +28,5 @@ platform.ready(function() {
 	}
     };
 
-    if (platform.isCordova()) setTimeout(bootstrap, 5000);
-    else bootstrap();
+    bootstrap();
 });

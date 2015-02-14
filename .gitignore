@@ -15,6 +15,5 @@ node_modules
 components
 platforms
 plugins
-hooks
 tmp
 npm-debug.log
