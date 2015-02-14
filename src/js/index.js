@@ -122,11 +122,13 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', function($scope,
     $scope.text = null;
     $scope.loaded = false;
 
-    var main = document.querySelector('main');
+    var messagesEl = document.querySelector('#messages');
 
     function reset() {
-	$timeout(function() {
-	    window.scrollTo(document.body, main.scrollHeight);
+	$timeout(function() { // after angular digest
+	    setTimeout(function() { // after dom render
+		messagesEl.scrollTop = messagesEl.scrollHeight;
+	    });
 	});
     }
 

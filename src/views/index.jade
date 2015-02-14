@@ -11,12 +11,13 @@ include head
                     button.btn.submit(type="submit") submit
 
         main(ng-controller="MainCtrl", ng-switch-when="true")
-            .item.item-body(ng-repeat="message in messages track by $index")
-                div
-                    .meta(ng-bind="::message.name")
-                    .meta(ng-bind="::message.timestamp | fromNow")
-                p(ng-bind="::message.text")
-            .item.meta(ng-show="loaded && !messages.length") The message queue is empty
+            #messages.scroll
+                .item.item-body(ng-repeat="message in messages track by $index")
+                    div
+                        .meta(ng-bind="::message.name")
+                        .meta(ng-bind="::message.timestamp | fromNow")
+                    p(ng-bind="::message.text")
+                .item.meta(ng-show="loaded && !messages.length") The message queue is empty
             form#message(name="message", ng-submit="submit()")
                 .container
                     textarea(name="text", type="text", ng-model="text", placeholder="write a new message here")
