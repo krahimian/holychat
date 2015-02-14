@@ -57,6 +57,7 @@ module.exports = function (grunt) {
 			//libraries
 			'components/angular/angular.min.js',
 			'components/socket.io-client/socket.io.js',
+			'components/fastclick/lib/fastclick.js',
 
 			//ngModules
 			'components/angular-socket-io/socket.min.js'

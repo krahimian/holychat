@@ -11,16 +11,37 @@ include head
                     button.btn.submit(type="submit") submit
 
         main(ng-controller="MainCtrl", ng-switch-when="true")
-            #messages.scroll
-                .item.item-body(ng-repeat="message in messages track by $index")
-                    div
-                        .meta(ng-bind="::message.name")
-                        .meta(ng-bind="::message.timestamp | fromNow")
-                    p(ng-bind="::message.text")
-                .item.meta(ng-show="loaded && !messages.length") The message queue is empty
-            form#message(name="message", ng-submit="submit()")
+            #toolbar.transition
+                a#sidebar-icon(ng-click="toggleSidebar()")
+                    .sidebar-icon-text
+                #title(ng-bind="currentRoom")
+
+            nav#sidebar.scroll.vertical.dark
+                ul
+                    li.heading.fancy
+                        span rooms
+                    li
+                        form(ng-submit="join(room)")
+                            input(type="text", name="room", ng-model="room", placeholder="enter a new room")
+                            button.btn.btn-sm.submit(type="submit", ng-show="room") join
+                    li(ng-repeat="(key, value) in rooms track by $index")
+                        a(ng-bind="key", ng-click="select(key)", ng-class="{active: currentRoom === key}")
+
+            #overlay(onclick="document.body.classList.toggle('sidebar-open')")
+
+            #messages.scroll.transition
+                .container
+                    .item.item-body(ng-repeat="message in rooms[currentRoom].messages track by $index")
+                        div
+                            .meta(ng-bind="::message.name")
+                            .meta(ng-bind="::message.timestamp | fromNow")
+                        p(ng-bind="::message.text")
+                    .empty-container(ng-show="loaded && !rooms[currentRoom].messages.length")
+                        div The message queue for "{{currentRoom}}" is empty
+
+            form#message.transition(name="message", ng-submit="submit()")
                 .container
                     textarea(name="text", type="text", ng-model="text", placeholder="write a new message here")
-                    #submit.btn.btn-sm.btn-light(ng-click="submit()", ng-show="text") Send
+                    #submit.btn.btn-sm.btn-success.active(ng-click="submit()", ng-show="text") Send
 
     include scripts

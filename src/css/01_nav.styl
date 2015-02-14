@@ -1,0 +1,55 @@
+@import '00_variables.styl'
+@import 'nib'
+
+nav
+    width 100%
+
+    ul
+        padding 0
+        margin 0
+        display block
+
+    li
+        position relative
+        display inline-block
+        &.heading
+            font-size 11px
+            margin 45px 20px 0
+            padding-bottom 20px
+            text-transform uppercase
+
+    a
+        padding 10px 20px
+        text-transform lowercase
+        display block
+        border none
+        overflow hidden
+        text-overflow ellipsis
+        &.active
+            color #444
+
+    &.vertical
+        width auto
+        li
+            display block
+            &:first-child
+                margin-top 0
+
+    &.horizontal
+        border-bottom 1px solid $border
+        white-space nowrap
+        overflow hidden
+        overflow-x scroll
+        li
+            margin-right 20px
+            vertical-align middle
+        a.active
+            background #fcfcfc
+            border-bottom 1px solid #666
+            margin-bottom -1px
+
+    &.dark
+        background-color #191918
+        li
+        a.active
+            color white

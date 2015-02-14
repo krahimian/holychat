@@ -42,23 +42,61 @@ io.on('connection', function(socket) {
 
     log.debug('connected users: ', Object.keys(io.nsps['/'].sockets).length);
 
-    db.lrange('hc:lobby', 0, 99, function(err, items) {
+    socket.join('lobby', function(err) {
 	if (err) log.error(err);
 	else {
-	    var messages = [];
-	    for (var i=0;i<items.length;i++) {
-		messages.push(JSON.parse(items[i]));
-	    }
-	    socket.emit('messages', messages);
+	    db.lrange('hc:lobby', 0, 99, function(err, items) {
+		if (err) log.error(err);
+		else {
+		    var messages = [];
+		    for (var i=0;i<items.length;i++) {
+			messages.push(JSON.parse(items[i]));
+		    }
+		    socket.emit('messages', {
+			room: 'lobby',
+			messages: messages
+		    });
+		}
+	    });
 	}
     });
 
+    socket.on('join', function(data) {
+	var room = data.room;
+
+	socket.join(room, function(err) {
+	    if (err) log.error(err);
+
+	    db.lrange('hc:' + room, 0, 99, function(err, items) {
+		if (err) log.error(err);
+		else {
+		    var messages = [];
+		    for (var i=0;i<items.length;i++) {
+			messages.push(JSON.parse(items[i]));
+		    }
+		    io.to(room).emit('messages', {
+			room: room,
+			messages: messages
+		    });
+		}
+	    });
+	});
+    });
+
+    socket.on('leave', function(data) {
+	var room = data.room;
+
+	socket.leave(room, function(err) {
+	    if (err) log.error(err);
+	});
+    });
+
     socket.on('message', function(data) {
-	log.debug(data);
+	var room = data.room;
 
-	db.rpush('hc:lobby', JSON.stringify(data));
+	db.rpush('hc:' + room, JSON.stringify(data.message));
 
-	socket.broadcast.emit('message', data);
+	socket.broadcast.to(room).emit('message', data);
     });
 
     socket.on('disconnect', function() {

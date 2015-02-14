@@ -1,4 +1,4 @@
-/* global app, document, window, cordova, platform */
+/* global app, document, window, cordova, platform, FastClick */
 
 app.run(['$rootScope', '$log', 'Auth', function($rootScope, $log, Auth) {
 
@@ -17,15 +17,21 @@ app.run(['$rootScope', '$log', 'Auth', function($rootScope, $log, Auth) {
 	$log.debug('loaded');
     });
 
-    Auth.init();    
+    Auth.init();
+    FastClick.attach(document.body);
 
 }]);
 
-app.factory('Auth', ['$rootScope', '$window', '$http', '$log', function($rootScope, $window, $http, $log) {
+app.factory('Auth', ['$rootScope', '$window', '$http', '$log', 'ws', function($rootScope, $window, $http, $log, ws) {
     return {
 
 	name: null,
 	server: null,
+	rooms: {
+	    lobby: {
+		messages: []
+	    }
+	},
 
 	init: function() {
 	    var self = this;
@@ -53,7 +59,44 @@ app.factory('Auth', ['$rootScope', '$window', '$http', '$log', function($rootSco
 	    this.name = data.name;
 	    this.server = data.server;
 
+	    if ($window.localStorage.rooms) {
+		var rooms = JSON.parse($window.localStorage.rooms);
+		for (var i=0; i<rooms.length; i++) {
+		    this.join(rooms[i]);
+		}
+	    }
+
 	    $rootScope.$broadcast('auth:loaded', data.name, data.server);
+	},
+
+	join: function(room) {
+
+	    if (!room) return;
+
+	    room = room.toLowerCase();
+
+	    this.rooms[room] = {
+		messages: []
+	    };
+
+	    ws.emit('join', {
+		room: room
+	    });
+
+	    var rooms = Object.keys(this.rooms);
+	    $window.localStorage.rooms = JSON.stringify(rooms);
+	},
+
+	leave: function(room) {
+
+	    ws.leave('join', {
+		room: room
+	    });
+
+	    delete this.rooms[room];
+
+	    var rooms = Object.keys(this.rooms);
+	    $window.localStorage.rooms = JSON.stringify(rooms);
 	},
 
 	save: function(data, cb) {
@@ -116,11 +159,36 @@ app.controller('AuthCtrl', ['$scope', 'Auth', '$log', '$timeout', function($scop
     };
 }]);
 
-app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', function($scope, ws, $timeout, $log) {
+app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function($scope, ws, $timeout, $log, Auth) {
 
-    $scope.messages = [];
+    $scope.currentRoom = 'lobby';
+    $scope.room = null;
+    $scope.rooms = Auth.rooms;
+
     $scope.text = null;
     $scope.loaded = false;
+
+    $scope.join = function(room) {
+	Auth.join(room);
+	$scope.room = null;
+    };
+
+    $scope.leave = Auth.leave;
+
+    $scope.select = function(room) {
+	$scope.currentRoom = null;
+	$scope.toggleSidebar();
+
+	// hacky fix to update ng-repeat
+	$timeout(function() {
+	    $scope.currentRoom = room;
+	    reset();
+	});
+    };
+
+    $scope.toggleSidebar = function() {
+	document.body.classList.toggle('sidebar-open');
+    };
 
     var messagesEl = document.querySelector('#messages');
 
@@ -136,24 +204,29 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', function($scope,
 	cordova.plugins.backgroundMode.onactivate = function() {
 	    $log.debug('listening to messages in background');
 	    ws.on('message', function(data) {
+		$log.debug('message received in background', data);
 		window.plugin.notification.local.cancelAll(); // hacky fix for notification bug
 		window.plugin.notification.local.schedule({
-		    message: data.text,  // The message that is displayed
+		    message: data.message.text,
 		    badge: 1,
-		    title: data.name
+		    title: data.message.name + ' - ' + data.room
 		});
 	    });
 	};
     }
 
+    $scope.$on('currentRoom', function(e, room) {
+	$scope.currentRoom = room;
+    });
+
     ws.on('message', function(data) {
-	$scope.messages.push(data);
-	
+	$log.debug('message received', data);
+	$scope.rooms[data.room].messages.push(data.message);
 	reset();
     });
 
     ws.on('messages', function(data) {
-	$scope.messages = data;
+	$scope.rooms[data.room].messages = data.messages;
 	reset();
 	$scope.loaded = true;
     });
@@ -166,15 +239,18 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', function($scope,
 
 	if (!$scope.text) return;
 
-	var message = {
-	    text: $scope.text,
-	    name: $scope.name,
-	    timestamp: new Date()
+	var item = {
+	    room: $scope.currentRoom,
+	    message: {
+		text: $scope.text,
+		name: $scope.name,
+		timestamp: new Date()
+	    }
 	};
 
-	$scope.messages.push(message);
+	$scope.rooms[$scope.currentRoom].messages.push(item.message);
 
-	ws.emit('message', message);
+	ws.emit('message', item);
 
 	$scope.text = null;
 	document.message.text.blur();
