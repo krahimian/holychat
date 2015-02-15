@@ -14,6 +14,7 @@ include head
             #toolbar.transition
                 a#sidebar-icon(ng-click="toggleSidebar()")
                     .sidebar-icon-text
+                .notification(ng-show="notification")
                 #title(ng-bind="currentRoom")
 
             nav#sidebar.scroll.vertical.dark
@@ -26,7 +27,7 @@ include head
                             button.btn.btn-sm.submit(type="submit", ng-show="room") join
                     li(ng-repeat="(key, value) in rooms track by $index")
                         a(ng-bind="key", ng-click="select(key)", ng-class="{active: currentRoom === key}")
-
+                        .notification(ng-show="rooms[key].notification")
             #overlay(onclick="document.body.classList.toggle('sidebar-open')")
 
             #messages.scroll.transition

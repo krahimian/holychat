@@ -18,7 +18,7 @@ app.filter('fromNow', function () {
             },
             ts = new Date().getTime() - new Date(nd).getTime(),
             ii;
-	if (ts < 0) return 'now';
+	if (ts < 1000) return 'now';
 	for (var i in o) {
 	    if (o.hasOwnProperty(i)) {
 		if (r(ts) < o[i]) return pl(ii || 'm', r(ts / (o[ii] || 1)));

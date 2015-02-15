@@ -135,6 +135,7 @@ app.controller('AuthCtrl', ['$scope', 'Auth', '$log', '$timeout', function($scop
     $scope.server = null;
     $scope.shake = false;
     $scope.message = null;
+    $scope.notification = false;
 
     var setInvalid = function(message) {
 	$scope.message = message;
@@ -179,21 +180,6 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 
     $scope.leave = Auth.leave;
 
-    $scope.select = function(room) {
-	$scope.currentRoom = null;
-	$scope.toggleSidebar();
-
-	// hacky fix to update ng-repeat
-	$timeout(function() {
-	    $scope.currentRoom = room;
-	    reset();
-	});
-    };
-
-    $scope.toggleSidebar = function() {
-	document.body.classList.toggle('sidebar-open');
-    };
-
     var messagesEl = document.querySelector('#messages');
 
     function reset() {
@@ -204,27 +190,70 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 	});
     }
 
+    var changeRoom = function(room) {
+	$scope.currentRoom = null;
+
+	$scope.rooms[room].notification = false;
+
+	var clear = true, rooms = Object.keys($scope.rooms);
+	for (var i=0; i<rooms.length; i++) {
+	    if ($scope.rooms[rooms[i]].notification) {
+		clear = false;
+		break;
+	    }
+	}
+
+	if (clear) $scope.notification = false;
+
+	// hacky fix to update ng-repeat
+	$timeout(function() {
+	    $scope.currentRoom = room;
+	    reset();
+	});
+    };
+
+    $scope.select = function(room) {
+	$scope.toggleSidebar();
+	changeRoom(room);
+    };
+
+    $scope.toggleSidebar = function() {
+	document.body.classList.toggle('sidebar-open');
+    };
+
     if (platform.isCordova()) {
+	var backgroundMessage = function(data) {
+	    $log.debug('message received in background', data);
+
+	    changeRoom(data.room);
+	    window.plugin.notification.local.cancelAll(); // hacky fix for notification bug
+	    window.plugin.notification.local.schedule({
+		message: data.message.text,
+		badge: 1,
+		title: data.message.name + ' - ' + data.room
+	    });
+	};
+
 	cordova.plugins.backgroundMode.onactivate = function() {
 	    $log.debug('listening to messages in background');
-	    ws.on('message', function(data) {
-		$log.debug('message received in background', data);
-		window.plugin.notification.local.cancelAll(); // hacky fix for notification bug
-		window.plugin.notification.local.schedule({
-		    message: data.message.text,
-		    badge: 1,
-		    title: data.message.name + ' - ' + data.room
-		});
-	    });
+	    ws.on('message', backgroundMessage);
+	};
+
+	cordova.plugins.backgroundMode.ondeactivate = function() {
+	    $log.debug('stop listening to messages in background');
+	    window.plugin.notification.local.cancelAll(); // hacky fix for notification bug
+	    ws.removeListener('message', backgroundMessage);
 	};
     }
 
-    $scope.$on('currentRoom', function(e, room) {
-	$scope.currentRoom = room;
-    });
-
     ws.on('message', function(data) {
 	$log.debug('message received', data);
+
+	if (data.room !== $scope.currentRoom) {
+	    $scope.notification = true;
+	    $scope.rooms[data.room].notification = true;
+	}
+
 	$scope.rooms[data.room].messages.push(data.message);
 	reset();
     });
@@ -234,7 +263,6 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 	reset();
 	$scope.loaded = true;
     });
-
 
     document.message.text.focus();
     reset();
