@@ -12,7 +12,7 @@ platform.ready(function() {
 	    cordova.plugins.backgroundMode.enable();
 
 	    cordova.plugins.backgroundMode.onactivate = function() {
-		console.log('background mode activep');
+		console.log('background mode actived');
 	    };
 
 	    window.plugin.notification.local.hasPermission(function(granted) {

@@ -2,6 +2,8 @@
 
 app.run(['$rootScope', '$log', 'Auth', function($rootScope, $log, Auth) {
 
+    $log.debug('angular initialized');
+
     $rootScope.loaded = false;
     $rootScope.initialized = false;
     $rootScope.name = null;
@@ -116,7 +118,9 @@ app.factory('Auth', ['$rootScope', '$window', '$http', '$log', 'ws', function($r
 	},
 
 	check: function(server, cb) {
-	    $http.get('http://' + server + '/pong').success(function() {
+	    $http.get('http://' + server + '/pong', {
+		timeout: 3000
+	    }).success(function() {
 		cb();
 	    }).error(function() {
 		cb('server unavailable');
@@ -194,7 +198,7 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 
     function reset() {
 	$timeout(function() { // after angular digest
-	    setTimeout(function() { // after dom render
+	    window.setTimeout(function() { // after dom render
 		messagesEl.scrollTop = messagesEl.scrollHeight;
 	    });
 	});
