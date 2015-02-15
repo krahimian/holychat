@@ -7,6 +7,8 @@
 *.gz
 *.DS_Store
 *.sqlite
+*.apk
+*.keystore
 
 .env
 .cordova
