@@ -7,7 +7,8 @@ platform.ready(function() {
 	angular.bootstrap(document, [app.name]);
 
 	if (platform.isCordova()) {
-	    StatusBar && StatusBar.hide();
+
+	    if (platform.isIOS() && StatusBar) StatusBar.hide();
 
 	    cordova.plugins.backgroundMode.enable();
 
