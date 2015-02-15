@@ -6,18 +6,14 @@ var app = angular.module('HOLY CHAT', [
 
 app.factory('ws', ['socketFactory', '$window', '$rootScope', function(socketFactory, $window, $rootScope) {
 
-    var socket;
+    var ws = {
+	socket: null
+    };
 
     if ($window.localStorage.data) {
 	var server = JSON.parse($window.localStorage.data).server;
-	socket = io.connect('http://' + server);
-    } else {
-	socket = io.connect();
+	ws.socket = io.connect('http://' + server);
     }
 
-    $rootScope.$on('auth:loaded', function(e, name, server) {
-	socket = io.connect('http://' + server);
-    });
-
-    return socket;
+    return ws;
 }]);

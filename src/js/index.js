@@ -69,6 +69,8 @@ app.factory('Auth', ['$rootScope', '$window', '$http', '$log', 'ws', function($r
 	    }
 
 	    $rootScope.$broadcast('auth:loaded', data.name, data.server);
+
+	    ws.socket = io.connect('http://' + data.server);
 	},
 
 	join: function(room) {
@@ -81,7 +83,7 @@ app.factory('Auth', ['$rootScope', '$window', '$http', '$log', 'ws', function($r
 		messages: []
 	    };
 
-	    ws.emit('join', {
+	    ws.socket.emit('join', {
 		room: room
 	    });
 
@@ -91,7 +93,7 @@ app.factory('Auth', ['$rootScope', '$window', '$http', '$log', 'ws', function($r
 
 	leave: function(room) {
 
-	    ws.leave('join', {
+	    ws.socket.leave('join', {
 		room: room
 	    });
 
@@ -236,17 +238,17 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 
 	cordova.plugins.backgroundMode.onactivate = function() {
 	    $log.debug('listening to messages in background');
-	    ws.on('message', backgroundMessage);
+	    ws.socket.on('message', backgroundMessage);
 	};
 
 	cordova.plugins.backgroundMode.ondeactivate = function() {
 	    $log.debug('stop listening to messages in background');
 	    window.plugin.notification.local.cancelAll(); // hacky fix for notification bug
-	    ws.removeListener('message', backgroundMessage);
+	    ws.socket.removeListener('message', backgroundMessage);
 	};
     }
 
-    ws.on('message', function(data) {
+    ws.socket.on('message', function(data) {
 	$log.debug('message received', data);
 
 	if (data.room !== $scope.currentRoom) {
@@ -258,7 +260,8 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 	reset();
     });
 
-    ws.on('messages', function(data) {
+    ws.socket.on('messages', function(data) {
+	console.log(data);
 	$scope.rooms[data.room].messages = data.messages;
 	reset();
 	$scope.loaded = true;
@@ -284,7 +287,7 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 
 	if (!$scope.$$phase) $scope.$apply();
 
-	ws.emit('message', item);
+	ws.socket.emit('message', item);
 
 	$scope.text = null;
 	document.message.text.blur();
