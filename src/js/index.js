@@ -250,6 +250,8 @@ app.controller('MainCtrl', ['$scope', 'ws', '$timeout', '$log', 'Auth', function
 
 	$scope.rooms[$scope.currentRoom].messages.push(item.message);
 
+	if (!$scope.$$phase) $scope.$apply();
+
 	ws.emit('message', item);
 
 	$scope.text = null;
