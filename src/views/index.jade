@@ -22,7 +22,7 @@ include head
                         span rooms
                     li
                         form(ng-submit="join(room)")
-                            input(type="text", name="room", ng-model="room", placeholder="enter a new room")
+                            input(type="text", name="room", ng-model="room", placeholder="enter a new room", tabindex="-2")
                             button.btn.btn-sm.submit(type="submit", ng-show="room") join
                     li(ng-repeat="(key, value) in rooms track by $index")
                         a(ng-bind="key", ng-click="select(key)", ng-class="{active: currentRoom === key}")
@@ -41,7 +41,7 @@ include head
 
             form#message.transition(name="message", ng-submit="submit()")
                 .container
-                    textarea(name="text", type="text", ng-model="text", placeholder="write a new message here")
+                    textarea(name="text", type="text", ng-model="text", placeholder="write a new message here", tabindex="-1")
                     #submit.btn.btn-sm.btn-success.active(ng-click="submit()", ng-show="text") Send
 
     include scripts
